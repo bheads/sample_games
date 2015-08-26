@@ -1,0 +1,8 @@
+{
+	"versions": {
+		"windows-headers": "1.0.1",
+		"derelict-sdl2": "1.9.7",
+		"derelict-util": "2.0.3"
+	},
+	"fileVersion": 1
+}

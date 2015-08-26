@@ -1,0 +1,11 @@
+name "intro1"
+description "A minimal D application."
+copyright "Copyright © 2015, bheads"
+authors "bheads, bsummers"
+
+targetPath "bin"
+targetName "intro_1"
+
+dependency "derelict-sdl2" version="~>1.9.7"
+
+
