@@ -18,11 +18,12 @@ void sdl_init() {
 	enforce(SDL_Init(SDL_INIT_EVERYTHING) == 0, format("Failed to init sdl %s", SDL_GetError.to!string));
 
 	DerelictSDL2Image.load();
+	enforce(IMG_Init(IMG_INIT_PNG) == IMG_INIT_PNG, format("Failed to init sdl_image %s", IMG_GetError.to!string));
 }
 
 
 void sdl_quit() {
 
-
+	IMG_Quit();
 	SDL_Quit();
 }
