@@ -1,10 +1,10 @@
-name "intro1"
+name "Rename This Project"
 description "A minimal D application."
 copyright "Copyright © 2015"
 authors "bheads, bsummers"
 
 targetType "executable"
-targetName "intro_1"
+targetName "rename_me"
 
 dependency "derelict-sdl2" version="~>1.9.7"
 
