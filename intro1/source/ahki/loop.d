@@ -14,7 +14,7 @@ import dini;
 import ahki.sdl;
 
 
-int loop(SDL_Window* window, SDL_Renderer* render) {
+int loop(SDL_Window* window, SDL_Renderer* render, ref Config config) {
     SDL_Event event;
 
     // Core game loop
@@ -55,7 +55,7 @@ int loop(SDL_Window* window, SDL_Renderer* render) {
             fps = frames;
             frames = 0;
             fpsLag = 0;
-            SDL_SetWindowTitle(window, format("Game Name Here %d", fps).toStringz);
+            SDL_SetWindowTitle(window, format("%s %d", config.title, fps).toStringz);
         }
 
         // Update stages
@@ -83,6 +83,7 @@ int start(string[] args) {
     config.width = ini["window"].getKey("width").to!int; 
     config.height = ini["window"].getKey("height").to!int; 
     config.fullscreen = ini["window"].getKey("fullscreen").to!bool;
+    config.title = ini["window"].getKey("title");
 
 
     sdl_init();
@@ -123,6 +124,7 @@ int start(string[] args) {
     enforce(SDL_CreateWindowAndRenderer(config.width, config.height,
             (config.fullscreen ? SDL_WINDOW_FULLSCREEN : 0),
             &window, &render) == 0, format("Failed to create window due to %s", SDL_GetError().to!string));
+    SDL_SetWindowTitle(window, config.title.toStringz);
 
     debug SDL_SetRenderDrawColor(render, 0, 0, 255, 255); // use blue for debugging
     else SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
@@ -135,7 +137,7 @@ int start(string[] args) {
     SDL_RenderPresent(render);
 
     // Run the game loop
-    return loop(window, render);
+    return loop(window, render, config);
 }
 
 __gshared Barrier barrier;
@@ -149,6 +151,7 @@ void init() {
 struct Config {
     int width, height;
     bool fullscreen;
+    string title;
 }
 
 
