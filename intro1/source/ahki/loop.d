@@ -1,44 +1,61 @@
 module ahki.loop;
 
 import core.sync.barrier;
+import core.time;
 
 import std.concurrency;
 import std.conv;
 import std.format;
+import std.string;
+
 
 import dini;
 
 import ahki.sdl;
 
 
-int loop(SDL_Renderer* render) {
+int loop(SDL_Window* window, SDL_Renderer* render) {
     SDL_Event event;
-    bool running = true;
 
     // Core game loop
     ulong lastFrame = SDL_GetPerformanceCounter(), currentFrame;
     double elapsed;
 
-    double aiLag, phyLag, scriptLag;
+    double aiLag = 0, phyLag = 0, scriptLag = 0;
     double aiStep = 1_000 / 8, phyStep = 50, scriptStep = 1_000 / 10;
 
-    GAME: while(running) {
+    uint fps, frames;
+    double fpsLag = 0;
+
+    GAME: for(;;) {
+        ++frames; // count the frame
+
         // compute delta
         currentFrame = SDL_GetPerformanceCounter();
-        elapsed = (cast(double) (currentFrame - lastFrame) * 1_000) / SDL_GetPerformanceFrequency(); // ms
+        elapsed = cast(double)((currentFrame - lastFrame)*1000) / SDL_GetPerformanceFrequency();
         lastFrame = currentFrame;
+        
+        // add in the update lag
         aiLag += elapsed;
         phyLag += elapsed;
         scriptLag += elapsed;
+        fpsLag += elapsed;
 
-        // Find events
+        // process events
         while (SDL_PollEvent(&event)) {
             switch(event.type) {
             case SDL_QUIT:
-                running = false;
                 break GAME;
             default:
             }
+        }
+
+        //fps
+        if(fpsLag >= 1_000) {
+            fps = frames;
+            frames = 0;
+            fpsLag = 0;
+            SDL_SetWindowTitle(window, format("Game Name Here %d", fps).toStringz);
         }
 
         // Update stages
@@ -54,8 +71,6 @@ int loop(SDL_Renderer* render) {
         // Draw interface last
 
         SDL_RenderPresent(render);
-
-        // delay game loop here
     }
 
     return 0;
@@ -106,7 +121,7 @@ int start(string[] args) {
     SDL_Window* window;
     SDL_Renderer* render;
     enforce(SDL_CreateWindowAndRenderer(config.width, config.height,
-            SDL_WINDOW_OPENGL | (config.fullscreen ? SDL_WINDOW_FULLSCREEN : 0),
+            (config.fullscreen ? SDL_WINDOW_FULLSCREEN : 0),
             &window, &render) == 0, format("Failed to create window due to %s", SDL_GetError().to!string));
 
     debug SDL_SetRenderDrawColor(render, 0, 0, 255, 255); // use blue for debugging
@@ -119,10 +134,8 @@ int start(string[] args) {
     SDL_RenderClear(render);
     SDL_RenderPresent(render);
 
-
-    loop(render);
-
-    return 0;
+    // Run the game loop
+    return loop(window, render);
 }
 
 __gshared Barrier barrier;
