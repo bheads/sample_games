@@ -11,23 +11,24 @@ import std.string;
 
 import dini;
 
-import ahki.sdl;
+import ahki.sdl,
+        ahki.stage;
 
 
-int loop(SDL_Window* window, SDL_Renderer* render, ref Config config) {
+int loop(SDL_Window* window, SDL_Renderer* render, ref Config config, ref StageStack stageStack) {
     SDL_Event event;
 
     // Core game loop
     ulong lastFrame = SDL_GetPerformanceCounter(), currentFrame;
     double elapsed;
 
-    double aiLag = 0, phyLag = 0, scriptLag = 0;
-    double aiStep = 1_000 / 8, phyStep = 50, scriptStep = 1_000 / 10;
+    double processLag = 0;
+    double processStep = 1_000 / 20;
 
     uint fps, frames;
     double fpsLag = 0;
 
-    GAME: for(;;) {
+    GAME: while(!stageStack.empty) {
         ++frames; // count the frame
 
         // compute delta
@@ -36,9 +37,7 @@ int loop(SDL_Window* window, SDL_Renderer* render, ref Config config) {
         lastFrame = currentFrame;
         
         // add in the update lag
-        aiLag += elapsed;
-        phyLag += elapsed;
-        scriptLag += elapsed;
+        processLag += elapsed;
         fpsLag += elapsed;
 
         // process events
@@ -47,6 +46,7 @@ int loop(SDL_Window* window, SDL_Renderer* render, ref Config config) {
             case SDL_QUIT:
                 break GAME;
             default:
+                // need to send events to the stage stack
             }
         }
 
@@ -59,17 +59,13 @@ int loop(SDL_Window* window, SDL_Renderer* render, ref Config config) {
         }
 
         // Update stages
-        while(aiLag >= aiStep ) {
-            // update ai
-            aiLag -= aiStep;
+        while(processLag >= processStep ) {
+            stageStack.process(processStep);
+            processLag -= processStep;
         }
 
         SDL_RenderClear(render);
-        
-        // Draw game world here!
-
-        // Draw interface last
-
+        stageStack.render(render);
         SDL_RenderPresent(render);
     }
 
@@ -78,6 +74,8 @@ int loop(SDL_Window* window, SDL_Renderer* render, ref Config config) {
 
 
 int start(string[] args) {
+    auto stageStack = StageStack(50);
+
     Config config;
     auto ini = Ini.Parse("ahki.conf");
     config.width = ini["window"].getKey("width").to!int; 
@@ -137,7 +135,7 @@ int start(string[] args) {
     SDL_RenderPresent(render);
 
     // Run the game loop
-    return loop(window, render, config);
+    return loop(window, render, config, stageStack);
 }
 
 __gshared Barrier barrier;
