@@ -59,9 +59,17 @@ int loop(SDL_Window* window, SDL_Renderer* render, ref Config config, ref StageS
         }
 
         // Update stages
-        while(processLag >= processStep ) {
+        // we might want a faster or slow process call...
+        // Added in max loop iterations
+        uint skipped = 0;
+        while(processLag >= processStep && skipped < 5) {
             stageStack.process(processStep);
             processLag -= processStep;
+            ++skipped;
+        }
+        // handle the case when the loop is reall behind, just give up we were more the 25% behind on the frame
+        if(processLag > processStep) {
+            processLag = 0;
         }
 
         SDL_RenderClear(render);
