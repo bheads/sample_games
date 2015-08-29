@@ -102,7 +102,7 @@ unittest {
         bool render_next() {return false;}
     }
 
-    auto stack = StageStack!5();
+    auto stack = StageStack(5);
     stack.push(new S());
     stack.pop;
     assert(count == 2);

@@ -23,7 +23,7 @@ int loop(SDL_Window* window, SDL_Renderer* render, ref Config config, ref StageS
     double elapsed;
 
     double processLag = 0;
-    double processStep = 1_000 / 20;
+    double processStep = 1_000 / 20; // 20 times a second
 
     uint fps, frames;
     double fpsLag = 0;
@@ -80,7 +80,11 @@ int loop(SDL_Window* window, SDL_Renderer* render, ref Config config, ref StageS
     return 0;
 }
 
-
+version(unittest)
+int start(string[] args) {
+    return 0;
+}
+else
 int start(string[] args) {
     auto stageStack = StageStack(50);
 
