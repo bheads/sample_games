@@ -1,15 +1,14 @@
 module ahki.stage.stage;
 
-private import ahki.sdl;
+private:
+import ahki.sdl;
+
+public:
 
 /**
  * Game stage impl, use this for stage type duck typing
  */
-
-
-public:
-
-interface Stage {
+interface IStage {
     void enter();
     void exit();
 

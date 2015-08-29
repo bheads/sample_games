@@ -9,5 +9,7 @@ targetName "intro_1"
 dependency "derelict-sdl2" version="~>1.9.7"
 dependency "dini" version="~master"
 
+buildType "release" {
+	sourceFiles "source/ahki.def" platform="windows" 
+}
 
-sourceFiles "source/ahki.def" platform="windows"

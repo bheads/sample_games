@@ -1,8 +1,10 @@
 {
 	"versions": {
+		"tested": "0.9.4",
 		"derelict-sdl2": "1.9.7",
 		"derelict-util": "2.0.3",
-		"dini": "~master"
+		"dini": "~master",
+		"dunit": "1.0.11"
 	},
 	"fileVersion": 1
 }

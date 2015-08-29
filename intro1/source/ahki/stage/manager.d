@@ -1,23 +1,26 @@
 module ahki.stage.manager;
 
-private import ahki.stage.stage,
-             ahki.sdl;
+private: 
+import std.exception,
+         std.array,
+         std.range.primitives;
 
-private import std.exception,
-             std.array,
-             std.range.primitives;
+import ahki.stage.stage,
+         ahki.sdl,
+         ahki.test;
 
+public:
 
 struct StageStack {
 private:
-    Stage[] stack;
+    IStage[] stack;
 
 public:
     this(size_t size) {
         stack.reserve = size;
     }
 
-    void push(Stage s) {
+    void push(IStage s) {
         enforce(stack.length <= stack.capacity, "Stage stack overflow");
         
         // Suspend the current top of the stack
@@ -25,14 +28,14 @@ public:
             stack.back.suspend();
         }
 
-        // enter this new stage
+        // enter this new IStage
         s.enter();
         // push it
         stack ~= s;
     }
 
     auto pop() {
-        enforce(!empty, "Stack stack under flow");
+        enforce(!empty, "Stage stack under flow");
         auto s = stack.back; // remove the last item
         stack.popBack;
         // call exit on it
@@ -47,7 +50,7 @@ public:
     }
 
     auto peek() {
-        enforce(!empty, "Stack stack under flow");
+        enforce(!empty, "Stage stack under flow");
         return stack.back;
     }
 
@@ -85,27 +88,27 @@ public:
 }
 
 unittest {
-    uint count = 0;
-    class S : Stage {
-        void enter() {count++;}
-        void exit() {count++;}
+    string order; 
+
+    class TStage : IStage {
+        void enter() { order ~= "a"; }
+        void exit() { order ~= "b"; }
 
         void resume() {}
         void suspend() {}
 
         void input() {}
-        void process(double d) {}
-        void render(SDL_Renderer* r) {}
+        void process(double) {}
+        void render(SDL_Renderer*) {}
 
-        bool input_next() {return false;}
-        bool process_next() {return false;}
-        bool render_next() {return false;}
+        bool input_next() { return false; }
+        bool process_next() { return false; }
+        bool render_next() { return false; }
     }
 
+    auto s = new TStage;   
     auto stack = StageStack(5);
-    stack.push(new S());
+    stack.push(s);
     stack.pop;
-    assert(count == 2);
-
-
+    assert(order == "ab");   
 }
