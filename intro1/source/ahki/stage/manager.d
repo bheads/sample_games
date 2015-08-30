@@ -38,6 +38,7 @@ public:
         enforce(!empty, "Stage stack under flow");
         auto s = stack.back; // remove the last item
         stack.popBack;
+
         // call exit on it
         s.exit();
 
@@ -108,7 +109,39 @@ unittest {
 
     auto s = new TStage;   
     auto stack = StageStack(5);
+    assert(stack.empty);
     stack.push(s);
+    assert(!stack.empty);
     stack.pop;
     assert(order == "ab");   
+    assert(stack.empty);
+}
+
+unittest {
+    string order; 
+
+    class TStage : IStage {
+        void enter() { order ~= "a"; }
+        void exit() { order ~= "b"; }
+
+        void resume() {order ~= "c";}
+        void suspend() {order ~= "d";}
+
+        void input() {}
+        void process(double) {}
+        void render(SDL_Renderer*) {}
+
+        bool input_next() { return false; }
+        bool process_next() { return false; }
+        bool render_next() { return false; }
+    }
+
+    auto s = new TStage;   
+    auto s2 = new TStage;
+    auto stack = StageStack(5);
+    stack.push(s);
+    stack.push(s2);
+    stack.pop;
+    stack.pop;
+    assert(order == "adabcb");   
 }
