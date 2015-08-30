@@ -1,12 +1,12 @@
 module ahki.loop;
 
-import core.sync.barrier;
-import core.time;
+import core.sync.barrier,
+        core.time;
 
-import std.concurrency;
-import std.conv;
-import std.format;
-import std.string;
+import std.concurrency,
+        std.conv,
+        std.format,
+        std.string;
 
 
 import dini;

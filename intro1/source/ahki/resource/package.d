@@ -5,7 +5,7 @@ private:
 
 import std.variant;
 
-import ahki.sdl:
+import ahki.sdl;
 
 
 alias ResourceRef = Algebraic!(SDL_Texture*);
